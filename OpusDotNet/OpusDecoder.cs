@@ -312,6 +312,11 @@ namespace OpusDotNet
         }
 
         /// <summary>
+        /// Version string
+        /// </summary>
+        public string LibraryVersionString => API.GetLibraryVersionString();
+
+        /// <summary>
         /// Releases all resources used by the current instance.
         /// </summary>
         public void Dispose()

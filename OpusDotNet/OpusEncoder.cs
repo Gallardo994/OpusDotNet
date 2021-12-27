@@ -438,6 +438,11 @@ namespace OpusDotNet
             API.ThrowIfError(result);
             return result;
         }
+        
+        /// <summary>
+        /// Version string
+        /// </summary>
+        public string LibraryVersionString => API.GetLibraryVersionString();
 
         /// <summary>
         /// Releases all resources used by the current instance.
