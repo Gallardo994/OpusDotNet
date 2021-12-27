@@ -6,37 +6,52 @@ namespace OpusDotNet
 {
     internal static class API
     {
+        // Support for iOS builds in Unity
+#if __IOS__ || UNITY_IOS && !UNITY_EDITOR
+        private const string LibraryPath = "__Internal";
+#else
+        private const string LibraryPath = "opus";
+#endif
+        
         // Encoder
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibraryPath, CallingConvention = CallingConvention.Cdecl)]
         public static extern SafeEncoderHandle opus_encoder_create(int Fs, int channels, int application, out int error);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibraryPath, CallingConvention = CallingConvention.Cdecl)]
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
         public static extern void opus_encoder_destroy(IntPtr st);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibraryPath, CallingConvention = CallingConvention.Cdecl)]
         public static extern int opus_encode(SafeEncoderHandle st, IntPtr pcm, int frame_size, IntPtr data, int max_data_bytes);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibraryPath, CallingConvention = CallingConvention.Cdecl)]
         public static extern int opus_encoder_ctl(SafeEncoderHandle st, int request, out int value);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibraryPath, CallingConvention = CallingConvention.Cdecl)]
         public static extern int opus_encoder_ctl(SafeEncoderHandle st, int request, int value);
 
         // Decoder
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibraryPath, CallingConvention = CallingConvention.Cdecl)]
         public static extern SafeDecoderHandle opus_decoder_create(int Fs, int channels, out int error);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibraryPath, CallingConvention = CallingConvention.Cdecl)]
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
         public static extern void opus_decoder_destroy(IntPtr st);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibraryPath, CallingConvention = CallingConvention.Cdecl)]
         public static extern int opus_decode(SafeDecoderHandle st, IntPtr data, int len, IntPtr pcm, int frame_size, int decode_fec);
 
         // Helper Methods
+        
+        [DllImport(LibraryPath, EntryPoint = "opus_get_version_string", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr OpusVersionString();
+
+        public static string GetLibraryVersionString()
+        {
+            return Marshal.PtrToStringAnsi(OpusVersionString());
+        }
 
         public static int GetSampleCount(double frameSize, int sampleRate)
         {
