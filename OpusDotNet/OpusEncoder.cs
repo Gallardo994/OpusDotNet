@@ -408,7 +408,7 @@ namespace OpusDotNet
         /// <param name="opusLength">The maximum number of bytes to write to <paramref name="opusBytes"/>.
         /// This will determine the bitrate in the encoded audio.</param>
         /// <returns>The number of bytes written to <paramref name="opusBytes"/>.</returns>
-        public int Encode(float[] pcmBytes, int samples, byte[] opusBytes, int opusLength)
+        public unsafe int Encode(float[] pcmBytes, int pcmLength, byte[] opusBytes, int opusLength)
         {
             if (pcmBytes == null)
             {
@@ -432,8 +432,15 @@ namespace OpusDotNet
 
             ThrowIfDisposed();
 
-            //int samples = API.GetSampleCount(frameSize, SampleRate);
-            var result = API.opus_encode_float(_handle, pcmBytes, samples, opusBytes, opusLength);
+            int result;
+            
+            fixed (float* input = pcmBytes)
+            fixed (byte* output = opusBytes)
+            {
+                var inputPtr = (IntPtr)input;
+                var outputPtr = (IntPtr)output;
+                result = API.opus_encode_float(_handle, inputPtr, pcmLength, outputPtr, opusLength);
+            }
 
             API.ThrowIfError(result);
             return result;
