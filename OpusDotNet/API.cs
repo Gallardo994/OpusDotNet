@@ -24,6 +24,9 @@ namespace OpusDotNet
 
         [DllImport(LibraryPath, CallingConvention = CallingConvention.Cdecl)]
         public static extern int opus_encode(SafeEncoderHandle st, IntPtr pcm, int frame_size, IntPtr data, int max_data_bytes);
+        
+        [DllImport(LibraryPath, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int opus_encode_float(SafeEncoderHandle st, float[] pcm, int frame_size, byte[] data, int max_data_bytes);
 
         [DllImport(LibraryPath, CallingConvention = CallingConvention.Cdecl)]
         public static extern int opus_encoder_ctl(SafeEncoderHandle st, int request, out int value);
@@ -42,6 +45,9 @@ namespace OpusDotNet
 
         [DllImport(LibraryPath, CallingConvention = CallingConvention.Cdecl)]
         public static extern int opus_decode(SafeDecoderHandle st, IntPtr data, int len, IntPtr pcm, int frame_size, int decode_fec);
+        
+        [DllImport(LibraryPath, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int opus_decode_float(SafeDecoderHandle st, byte[] data, int len, float[] pcm, int frame_size, int decode_fec);
 
         // Helper Methods
         

@@ -266,6 +266,50 @@ namespace OpusDotNet
             API.ThrowIfError(result);
             return API.GetPCMLength(result, Channels);
         }
+        
+        /// <summary>
+        /// Decodes an Opus packet or any FEC (forward error correction) data.
+        /// </summary>
+        /// <param name="opusBytes">The Opus packet, or null to indicate packet loss.</param>
+        /// <param name="opusLength">The maximum number of bytes to read from <paramref name="opusBytes"/>, or -1 to indicate packet loss.</param>
+        /// <param name="pcmBytes">The buffer that the decoded audio will be stored in.</param>
+        /// <param name="pcmLength">The maximum number of bytes to write to <paramref name="pcmBytes"/>.
+        /// When using FEC (forward error correction) this must be a valid frame size that matches the duration of the missing audio.</param>
+        /// <returns>The number of bytes written to <paramref name="pcmBytes"/>.</returns>
+        public int Decode(byte[] opusBytes, int opusLength, float[] pcmBytes, int samples)
+        {
+            if (opusLength < 0 && opusBytes != null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(opusLength), $"Value cannot be negative when {nameof(opusBytes)} is not null.");
+            }
+
+            if (opusBytes != null && opusBytes.Length < opusLength)
+            {
+                throw new ArgumentOutOfRangeException(nameof(opusLength), $"Value cannot be greater than the length of {nameof(opusBytes)}.");
+            }
+
+            if (pcmBytes == null)
+            {
+                throw new ArgumentNullException(nameof(pcmBytes));
+            }
+
+            ThrowIfDisposed();
+
+            int result;
+
+            if (opusBytes != null)
+            {
+                result = API.opus_decode_float(_handle, opusBytes, opusLength, pcmBytes, samples, 0);
+            }
+            else
+            {
+                // If forward error correction is enabled, this will indicate a packet loss.
+                result = API.opus_decode_float(_handle, null, 0, pcmBytes, samples, 1);
+            }
+
+            API.ThrowIfError(result);
+            return result;
+        }
 
         /// <summary>
         /// Releases all resources used by the current instance.

@@ -398,6 +398,46 @@ namespace OpusDotNet
             API.ThrowIfError(result);
             return result;
         }
+        
+        /// <summary>
+        /// Encodes an Opus frame, the frame size must be one of the following: 2.5, 5, 10, 20, 40 or 60 ms.
+        /// </summary>
+        /// <param name="pcmBytes">The Opus frame.</param>
+        /// <param name="pcmLength">The maximum number of bytes to read from <paramref name="pcmBytes"/>.</param>
+        /// <param name="opusBytes">The buffer that the encoded audio will be stored in.</param>
+        /// <param name="opusLength">The maximum number of bytes to write to <paramref name="opusBytes"/>.
+        /// This will determine the bitrate in the encoded audio.</param>
+        /// <returns>The number of bytes written to <paramref name="opusBytes"/>.</returns>
+        public int Encode(float[] pcmBytes, int samples, byte[] opusBytes, int opusLength)
+        {
+            if (pcmBytes == null)
+            {
+                throw new ArgumentNullException(nameof(pcmBytes));
+            }
+
+            if (opusBytes == null)
+            {
+                throw new ArgumentNullException(nameof(opusBytes));
+            }
+
+            if (opusLength < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(opusLength), "Value cannot be negative.");
+            }
+
+            if (opusBytes.Length < opusLength)
+            {
+                throw new ArgumentOutOfRangeException(nameof(opusLength), $"Value cannot be greater than the length of {nameof(opusBytes)}.");
+            }
+
+            ThrowIfDisposed();
+
+            //int samples = API.GetSampleCount(frameSize, SampleRate);
+            var result = API.opus_encode_float(_handle, pcmBytes, samples, opusBytes, opusLength);
+
+            API.ThrowIfError(result);
+            return result;
+        }
 
         /// <summary>
         /// Releases all resources used by the current instance.
